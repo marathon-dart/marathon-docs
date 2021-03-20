@@ -1,7 +1,9 @@
 site_name: Marathon Docs
 theme: lux
 nav:
-    - Home: 'index.md'
-    - 'Authentication':
-      - 'Overview' : 'authentication/overview.md'
-      - 'API' : 'authentication/api.md'
+  - Home: "index.md"
+  - "Authentication":
+      - "Overview": "authentication/overview.md"
+      - "API": "authentication/api.md"
+      - "Authentication Approaches": "authentication/different-approaches.md"
+  - "CLI": "cli.md"
