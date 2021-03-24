@@ -6,4 +6,6 @@ nav:
       - "Overview": "authentication/overview.md"
       - "API": "authentication/api.md"
       - "Authentication Approaches": "authentication/different-approaches.md"
+  - "Sessions":
+      - "Specification": "sessions/specification.md"
   - "CLI": "cli.md"
