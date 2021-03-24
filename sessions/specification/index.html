@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+        
+        
+        <link rel="shortcut icon" href="../../img/favicon.ico">
+        <title>Specification - Marathon Docs</title>
+        <link href="../../css/bootstrap.min.css" rel="stylesheet">
+        <link href="../../css/font-awesome.min.css" rel="stylesheet">
+        <link href="../../css/base.css" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/color-brewer.min.css">
+
+        <script src="../../js/jquery-1.10.2.min.js" defer></script>
+        <script src="../../js/bootstrap.min.js" defer></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+        <script>hljs.initHighlightingOnLoad();</script> 
+    </head>
+
+    <body>
+        <div class="navbar fixed-top navbar-expand-lg navbar-dark bg-primary">
+            <div class="container">
+                <a class="navbar-brand" href="../..">Marathon Docs</a>
+                <!-- Expander button -->
+                <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#navbar-collapse">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <!-- Expanded navigation -->
+                <div id="navbar-collapse" class="navbar-collapse collapse">
+                        <!-- Main navigation -->
+                        <ul class="nav navbar-nav">
+                            <li class="navitem">
+                                <a href="../.." class="nav-link">Home</a>
+                            </li>
+                            <li class="dropdown">
+                                <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">Authentication <b class="caret"></b></a>
+                                <ul class="dropdown-menu">
+                                    
+<li>
+    <a href="../../authentication/overview/" class="dropdown-item">Overview</a>
+</li>
+                                    
+<li>
+    <a href="../../authentication/api/" class="dropdown-item">API</a>
+</li>
+                                    
+<li>
+    <a href="../../authentication/different-approaches/" class="dropdown-item">Authentication Approaches</a>
+</li>
+                                </ul>
+                            </li>
+                            <li class="dropdown active">
+                                <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">Sessions <b class="caret"></b></a>
+                                <ul class="dropdown-menu">
+                                    
+<li>
+    <a href="./" class="dropdown-item active">Specification</a>
+</li>
+                                </ul>
+                            </li>
+                            <li class="navitem">
+                                <a href="../../cli/" class="nav-link">CLI</a>
+                            </li>
+                        </ul>
+
+                    <ul class="nav navbar-nav ml-auto">
+                        <li class="nav-item">
+                            <a href="#" class="nav-link" data-toggle="modal" data-target="#mkdocs_search_modal">
+                                <i class="fa fa-search"></i> Search
+                            </a>
+                        </li>
+                            <li class="nav-item">
+                                <a rel="prev" href="../../authentication/different-approaches/" class="nav-link">
+                                    <i class="fa fa-arrow-left"></i> Previous
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a rel="next" href="../../cli/" class="nav-link">
+                                    Next <i class="fa fa-arrow-right"></i>
+                                </a>
+                            </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="container">
+            <div class="row">
+                    <div class="col-md-3"><div class="navbar-light navbar-expand-md bs-sidebar hidden-print affix" role="complementary">
+    <div class="navbar-header">
+        <button type="button" class="navbar-toggler collapsed" data-toggle="collapse" data-target="#toc-collapse" title="Table of Contents">
+            <span class="fa fa-angle-down"></span>
+        </button>
+    </div>
+
+    
+    <div id="toc-collapse" class="navbar-collapse collapse card bg-secondary">
+        <ul class="nav flex-column">
+            
+            <li class="nav-item" data-level="1"><a href="#marathon-sessions-specification" class="nav-link">Marathon Sessions (Specification)</a>
+              <ul class="nav flex-column">
+            <li class="nav-item" data-level="2"><a href="#what-are-sessions" class="nav-link">What are sessions?</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-level="2"><a href="#session-security" class="nav-link">Session Security</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-level="2"><a href="#api-design" class="nav-link">API Design</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+              </ul>
+            </li>
+        </ul>
+    </div>
+</div></div>
+                    <div class="col-md-9" role="main">
+
+<h1 id="marathon-sessions-specification">Marathon Sessions (Specification)</h1>
+<p>This is an internal design document for Marathon's sessions module.</p>
+<h2 id="what-are-sessions">What are sessions?</h2>
+<p>Sessions are key to providing a reactive user experience on the server. Essentially, the idea is that the server stores
+some data set correspondent to a user id. Responses can then leverage the data associated with that user id
+(the "session" data) to provide a customized user experience.</p>
+<p>Essentially, without some sort of session management, we couldn't customize our services on a per-user basis! For
+example, imagine trying to build a banking service without the server knowing who the user is. It doesn't work, does it?</p>
+<p>Session IDs are typically stored using cookies, which are a type of storage mechanism in browsers. This cookie is
+transmitted along with every request; the presence (or lack thereof) of a valid session ID in a request can indicate a
+user's status with the system.</p>
+<h2 id="session-security">Session Security</h2>
+<p>There are a few vectors of attack on a typical session-based system. The simplest is just a brute force attack: by
+trying enough different user IDs, an attacker could gain access to user data. This is why session IDs must always be
+UUIDs, or another such construct with a low chance of collision.</p>
+<p>A more advanced attacker might think to record a user's user ID and then send it to the server, thereby gaining access
+to all the user's data and privileges. While it's practically impossible to ENSURE that a client won't leak this data,
+we should take steps to mitigate the likelihood. This includes:</p>
+<ul>
+<li>HTTPS only communication (plain HTTP is insecure and could leak the cookie with the ID)</li>
+<li>Setting an expiry on the session cookie (The session ID is automatically deleted ~30 min after it's received by the
+  client, unless it's re-received).</li>
+</ul>
+<h2 id="api-design">API Design</h2>
+<p>If you are not familiar with <a href="https://pub.dev/packages/shelf">the shelf library</a>, I highly recommend you read the
+documentation there before reading this API design. This design will gloss over concepts and classes introduced there,
+mostly in the interest of brevity and simple code snippets.</p>
+<h4 id="basics">Basics</h4>
+<p>Marathon sessions should be convenient middleware on a shelf server. This means something like:</p>
+<pre><code class="language-dart">
+var app = Pipeline().addMiddleware(sessionManager()).addHandler(_performSessionBasedActions);
+</code></pre>
+<p>This sessionManager function should, internally, construct a SessionManager object, and attach it to the Request. shelf
+Requests have a property <code>Map&lt;String, dynamic&gt; context</code>, which the middleware can write to. The manager can thus be
+attached to the context in the middleware, and then read and used from a handler. For example:</p>
+<pre><code class="language-dart">Response _performSessionBasedActions(Request req) {
+  var sessionManger = req.context['sessions'] as SessionManager;
+  // perform some actions with sessionManager
+  return Response.ok('yay!');
+}
+</code></pre>
+<h4 id="sessionmanager">SessionManager</h4>
+<p>I've made references to a <code>SessionManager</code> class without explaining its purpose. Essentially, the SessionManager is
+responsible for providing the user an interface to read/edit/refresh sessions. </p>
+<p>SessionManager should have the following parameters (optional parameters are italicized with their default values beside
+them):</p>
+<ul>
+<li><strong><em>boolean cookieHttpOnly = true</em></strong>: exposes session id cookie's httpOnly attribute</li>
+<li><strong><em>Duration cookieMaxAge = Duration(minutes: 30)</em></strong> : exposes session id cookie's maxAge attribute, with a sane,
+  secure default.</li>
+<li><strong><em>boolean cookieSecure = false</em></strong> : exposes session id cookie's secure attribute, which limits the cookie to being
+  only transmittable over HTTPS. Though this is HIGHLY recommended for production servers, it can cause issues in dev
+  environments, so the default is false.</li>
+<li><strong><em>String Function() genID = _uuidGenerator</em></strong> : the function to call when generating a new session ID. This should,
+  by default, use a function that generates a UUID.</li>
+<li><strong><em>String cookieName = 'marathon.sid'</em></strong> : the name of the session ID cookie. The session ID will be written into the
+  Response header under this cookieName and read from the Request header under this cookieName.</li>
+<li><strong>SessionStore store</strong> : the store abstraction containing all the user sessions. Explained in depth in the next
+  section.</li>
+</ul>
+<p>Method, Property lists TBD.</p>
+<h4 id="sessionstore">SessionStore</h4>
+<p>In the SessionManager docs, I made some references to a SessionStore class. This "class" is really an abstract class
+meant to be implemented as an interface. It should essentially provide CRUD methods, with User IDs as the keys. I
+won't go into too much detail on the abstract class; it should be noted that the onus is on the user of this library
+to implement the SessionStore interface (and thereby provide a way of storing user sessions). </p>
+<p>We should provide a Map-backed implementation (perhaps "LocalSessionStore"), which is purely for development and 
+testing purposes. Of course, this is not a real solution: storing user-sessions in memory is absurd. However, providing
+such an implementation allows users of this library to test and run their servers without actually using a full 
+SessionStore.</p>
+<p>When we eventually provide ORM services, it should definitely implement this interface, so that the ORMs can be
+used as SessionStores without any struggles.</p></div>
+            </div>
+        </div>
+
+        <footer class="col-md-12">
+            <hr>
+            <p>Documentation built with <a href="https://www.mkdocs.org/">MkDocs</a>.</p>
+        </footer>
+        <script>
+            var base_url = "../..",
+                shortcuts = {"help": 191, "next": 78, "previous": 80, "search": 83};
+        </script>
+        <script src="../../js/base.js" defer></script>
+        <script src="../../search/main.js" defer></script>
+
+        <div class="modal" id="mkdocs_search_modal" tabindex="-1" role="dialog" aria-labelledby="searchModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="searchModalLabel">Search</h4>
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+            </div>
+            <div class="modal-body">
+                <p>
+                    From here you can search these documents. Enter
+                    your search terms below.
+                </p>
+                <form>
+                    <div class="form-group">
+                        <input type="search" class="form-control" placeholder="Search..." id="mkdocs-search-query" title="Type search term here">
+                    </div>
+                </form>
+                <div id="mkdocs-search-results"></div>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div><div class="modal" id="mkdocs_keyboard_modal" tabindex="-1" role="dialog" aria-labelledby="keyboardModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="keyboardModalLabel">Keyboard Shortcuts</h4>
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+            </div>
+            <div class="modal-body">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th style="width: 20%;">Keys</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="help shortcut"><kbd>?</kbd></td>
+                    <td>Open this help</td>
+                  </tr>
+                  <tr>
+                    <td class="next shortcut"><kbd>n</kbd></td>
+                    <td>Next page</td>
+                  </tr>
+                  <tr>
+                    <td class="prev shortcut"><kbd>p</kbd></td>
+                    <td>Previous page</td>
+                  </tr>
+                  <tr>
+                    <td class="search shortcut"><kbd>s</kbd></td>
+                    <td>Search</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div>
+
+    </body>
+</html>
